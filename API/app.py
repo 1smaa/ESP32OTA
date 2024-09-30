@@ -5,7 +5,7 @@ from include.manage import *
 from include.const import *
 from include.gp import *
 
-import sys
+import sqlite3
 
 #
 #   MAIN FILE
@@ -24,7 +24,7 @@ def test() -> Response:
         "status":"running"
     })
     
-@app.create("/create",methods=["POST"])
+@app.route("/create",methods=["POST"])
 @endpoint_wrap
 def register_entity() -> Response:
     '''
@@ -37,13 +37,13 @@ def register_entity() -> Response:
     else:
         data=request.get_json()
         if ("key" not in data.keys() or data["key"]!=KEY): raise Unauthorized
-        id=create_entity()
+        id=Storage.create_entity()
         return jsonify({
             "response":"OK",
             "entity_id":id
         })
         
-@app.create("/fetchlatest",methods=["GET"])
+@app.route("/fetchlatest",methods=["GET"])
 @endpoint_wrap
 def fetch_digest() -> Response:
     '''
@@ -53,11 +53,11 @@ def fetch_digest() -> Response:
     '''
     id=request.args.get("id")
     if id is None: raise BadRequest
-    if not check(id): raise Unauthorized
+    if not Storage.check(id): raise Unauthorized
     else:
-        return fetch(id)
+        return Storage.fetch(id)
     
-@app.create("/link",methods=["POST"])
+@app.route("/link",methods=["POST"])
 @endpoint_wrap
 def link() -> Response:
     '''
@@ -68,14 +68,43 @@ def link() -> Response:
     if not request.is_json: raise BadRequest
     else:
         data=request.get_json()
-        if check_for_keys(data,"id","digest") or not check(data["id"]): raise Unauthorized
-        link=link_entity(data["id"],data["digest"])
+        if check_for_keys(data,"id","timestamp") or not Storage.check(data["id"]): raise Unauthorized
+        link=Storage.link_entity(data["id"],data["timestamp"])
         return jsonify({
             "response":"OK",
             "link":link
         })
+        
+@app.route("/timestamps",methods=["GET"])
+@endpoint_wrap
+def timestamps() -> Response:
+    '''
+    Returns the list of available updates timestamps
+    '''
+    id=request.args.get("id")
+    last=request.args.get("last")
+    if not id or not Storage.check(id): raise Unauthorized
+    timestamps=Storage.get_timestamps()
+    if len(timestamps):
+        if last:
+            return jsonify({
+                "response":"OK",
+                "timestamp":max(timestamps)
+            })
+        else:
+            return jsonify({
+                "response":"OK",
+                "timestamps":timestamps
+            })
+    else:
+        return jsonify({
+            "response":"Empty",
+            "timestamps":[]
+        })
+        
     
-@app.create("/update",methods=["POST"])
+    
+@app.route("/update",methods=["POST"])
 @endpoint_wrap
 def update() -> Response:
     '''
@@ -87,7 +116,12 @@ def update() -> Response:
     else:
         data=request.get_json()
         if not check_for_keys(data,"id","digest","timestamp","link"): raise Unauthorized
-        ######## CONTINUE
+        if Storage.create(data):
+            return jsonify({
+                "response":"OK"
+            })
+        else: raise Exception
+        
         
 # Simply runs the app
 if __name__=="__main__":
