@@ -80,6 +80,8 @@ def link() -> Response:
 def timestamps() -> Response:
     '''
     Returns the list of available updates timestamps
+    METHOD: GET
+    NECESSARY DATA: 'id' and 'last', a boolean value to specify if only the latest timestamp is needed
     '''
     id=request.args.get("id")
     last=request.args.get("last")

@@ -2,7 +2,7 @@ import functools
 from flask import jsonify
 from typing import Callable, Any
 
-from API.include.const import *
+from include.const import *
 from include.exceptions import *
 
 #
