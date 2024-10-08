@@ -52,7 +52,7 @@ def link() -> Response:
     if not request.is_json: raise BadRequest
     else:
         data=request.get_json()
-        if check_for_keys(data,"id","timestamp") or not Storage.check(data["id"]): raise Unauthorized
+        if not check_for_keys(data,"id","timestamp") or not Storage.check(data["id"]): raise Unauthorized
         link=Storage.link_entity(data["id"],data["timestamp"])
         return jsonify({
             "response":"OK",
