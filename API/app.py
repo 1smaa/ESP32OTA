@@ -127,4 +127,4 @@ def update() -> Response:
         
 # Simply runs the app
 if __name__=="__main__":
-    app.run("0.0.0.0",34,debug=True,threaded=True)
+    app.run(host="0.0.0.0",debug=False,threaded=True)
