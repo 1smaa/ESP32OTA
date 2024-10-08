@@ -1,4 +1,4 @@
-def check_for_keys(*args,**kwargs) -> bool:
+def check_for_keys(*args) -> bool:
     '''
     Checks if all the specified keys are present within the dictionary
     '''

@@ -1,6 +1,6 @@
 import sqlite3
 
-DB=sqlite3.connect("API/data/entities.db")
+DB=sqlite3.connect("data/entities.db")
 cursor=DB.cursor()
 cursor.execute('''CREATE TABLE entities (
     id INTEGER, -- Not a key in this case

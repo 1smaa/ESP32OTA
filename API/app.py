@@ -23,25 +23,6 @@ def test() -> Response:
     return jsonify({
         "status":"running"
     })
-    
-@app.route("/create",methods=["POST"])
-@endpoint_wrap
-def register_entity() -> Response:
-    '''
-    Registers a new entity inside the files
-    METHOD: POST
-    NECESSARY DATA: Json with a 'key' key
-    '''
-    if not request.is_json:
-        raise BadRequest
-    else:
-        data=request.get_json()
-        if ("key" not in data.keys() or data["key"]!=KEY): raise Unauthorized
-        id=Storage.create_entity()
-        return jsonify({
-            "response":"OK",
-            "entity_id":id
-        })
         
 @app.route("/fetchlatest",methods=["GET"])
 @endpoint_wrap
@@ -55,7 +36,10 @@ def fetch_digest() -> Response:
     if id is None: raise BadRequest
     if not Storage.check(id): raise Unauthorized
     else:
-        return Storage.fetch(id)
+        return jsonify({
+            "response":"OK",
+            "digest":Storage.fetch(id)
+        })
     
 @app.route("/link",methods=["POST"])
 @endpoint_wrap
@@ -63,7 +47,7 @@ def link() -> Response:
     '''
     Returns the link from which to download the update
     METHOD: POST
-    NECESSARY DATA: 'id' and 'digest' of the download
+    NECESSARY DATA: 'id' and 'timestamp' of the download
     '''
     if not request.is_json: raise BadRequest
     else:

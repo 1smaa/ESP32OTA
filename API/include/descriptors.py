@@ -2,6 +2,7 @@ import functools
 from flask import jsonify
 from typing import Callable, Any
 import sys
+import traceback
 
 from include.const import *
 from include.exceptions import *
@@ -27,9 +28,9 @@ def endpoint_wrap(f: Callable) -> Callable:
                 "response":"Bad Request"
             }), BAD_REQUEST
         except Exception as e:
-            sys.stderr.write(e)
             return jsonify({
-                "response":"Internal Server Error"
+                "response":"Internal Server Error",
+                "exception":traceback.format_exc()
             }), INTERNAL_ERROR
     return wrapper
 
@@ -53,7 +54,8 @@ def bool_except(f: Callable) -> Callable:
     def wrapper(*args,**kwargs):
         try:
             f(*args,**kwargs)
-        except:
+        except Exception as e:
+            raise Exception(sys.exc_info())
             return False
         else:
             return True
